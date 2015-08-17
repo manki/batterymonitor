@@ -2,6 +2,7 @@ package in.manki.batterymonitor;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -40,6 +41,28 @@ public class BatteryLogDatabse extends SQLiteOpenHelper {
         }
     }
 
+    public Cursor listBatteryStatuses() {
+        SQLiteDatabase db = getReadableDatabase();
+        try {
+            String[] columns = new String[] {
+                    Fields.UTC_TIMESTAMP,
+                    Fields.LOCAL_TIME_HOURS,
+                    Fields.LOCAL_TIME_MINUTES,
+                    Fields.LOCAL_TIME_SECONDS,
+                    Fields.BATTERY_PERCENT
+            };
+            String whereClause = null;
+            String[] whereArgs = new String[] {};
+            String groupBy = null;
+            String having = null;
+            String orderBy = Fields.UTC_TIMESTAMP + " DESC";
+            String limit = "100";
+            return db.query(TABLE_NAME, columns, whereClause, whereArgs, groupBy, having, orderBy, limit);
+        } finally {
+            db.close();
+        }
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
@@ -58,7 +81,7 @@ public class BatteryLogDatabse extends SQLiteOpenHelper {
         throw new UnsupportedOperationException();
     }
 
-    private static final class Fields {
+    public static final class Fields {
         static final String RECORD_ID = "RecordId";
         static final String UTC_TIMESTAMP = "UtcTimestamp";
         static final String LOCAL_TIME_HOURS = "LocalTimeHours";
